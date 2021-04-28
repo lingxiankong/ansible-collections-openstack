@@ -172,6 +172,7 @@ def main():
         properties=dict(type='dict', default={}),
         volume=dict(default=None),
         state=dict(default='present', choices=['absent', 'present']),
+        tags=dict(type='list', default=[]),
     )
 
     module_kwargs = openstack_module_kwargs(
@@ -207,17 +208,19 @@ def main():
                     min_disk=module.params['min_disk'],
                     min_ram=module.params['min_ram'],
                     volume=module.params['volume'],
+                    tags=module.params['tags'],
                     **kwargs
                 )
                 changed = True
                 if not module.params['wait']:
                     module.exit_json(changed=changed, image=image, id=image.id)
 
-            cloud.update_image_properties(
+            cloud.update_image(
                 image=image,
                 kernel=module.params['kernel'],
                 ramdisk=module.params['ramdisk'],
                 protected=module.params['protected'],
+                tags=module.params['tags'],
                 **module.params['properties'])
             image = cloud.get_image(name_or_id=image.id)
             module.exit_json(changed=changed, image=image, id=image.id)
